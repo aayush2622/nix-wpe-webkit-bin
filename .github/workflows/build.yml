@@ -32,14 +32,18 @@ jobs:
         uses: cachix/install-nix-action@v31
 
       - name: Build wpewebkit from source
-        run: nix build .#wpewebkit-source --print-build-logs -o result
+        run: nix build '.#wpewebkit-source^*' --print-build-logs -o result
 
       - name: Package tarball
         id: package
         run: |
           version=$(nix eval --raw .#wpewebkit-source.version)
           tarball="wpewebkit-${version}-x86_64-linux.tar.gz"
-          tar -czf "$tarball" -C result .
+          merged=$(mktemp -d)
+          for out in result result-*; do
+            [ -e "$out" ] && cp -rL --no-preserve=mode "$out"/. "$merged"/
+          done
+          tar -czf "$tarball" -C "$merged" .
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
 
