@@ -1,7 +1,7 @@
 {
   description = "Prebuilt WPE WebKit for Nix - binaries published via GitHub Releases so consumers don't have to build WebKit from source themselves";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/eaad089433ca2bb662274377d33df3d0e51ef28b";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs = { self, nixpkgs }:
     let
