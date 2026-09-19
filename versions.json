@@ -2,6 +2,6 @@
   "version": "2.52.3",
   "x86_64-linux": {
     "url": "https://github.com/aayush2622/nix-wpe-webkit-bin/releases/download/v2.52.3/wpewebkit-2.52.3-x86_64-linux.tar.gz",
-    "hash": "sha256-Lkv8aIsC42SJx2AoQ2axaYWNE7bwxaJu5lb/wEVLokY="
+    "hash": "sha256-DWi9hNdCyx1kuH2MQ1c7rngwt7q6vFffHs4bXz6bCzA="
   }
 }
