@@ -14,6 +14,12 @@ on:
 permissions:
   contents: write
 
+env:
+  # Cache lives at https://app.cachix.org/cache/wpewebkit-bin; its write token
+  # must be set as the CACHIX_AUTH_TOKEN repository secret. The matching
+  # public key is in flake.nix's nixConfig.
+  CACHIX_CACHE: wpewebkit-bin
+
 jobs:
   build-x86_64-linux:
     runs-on: ubuntu-latest
@@ -30,6 +36,14 @@ jobs:
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+
+      # Pushes every store path realised below, so consumers substitute both the
+      # from-source build and the repacked prebuilt instead of doing either.
+      - name: Set up Cachix
+        uses: cachix/cachix-action@v16
+        with:
+          name: ${{ env.CACHIX_CACHE }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build wpewebkit from source
         run: nix build '.#wpewebkit-source^*' --print-build-logs -o result
@@ -79,3 +93,10 @@ jobs:
           git add versions.json
           git diff --cached --quiet || git commit -m "ci: publish wpewebkit ${{ steps.package.outputs.version }} for x86_64-linux"
           git push
+
+      # versions.json now points at the release published above, so `.#wpewebkit`
+      # resolves to the prebuilt repack. Realise it here purely so cachix-action
+      # uploads it: that is the path consumers actually depend on, and building it
+      # locally means unpacking 223 MB and rewriting a 173 MB library.
+      - name: Build and push the repacked prebuilt
+        run: nix build '.#wpewebkit' --print-build-logs --no-link
